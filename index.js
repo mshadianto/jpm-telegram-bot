@@ -1,14 +1,13 @@
-// index.js
+// index.js (Versi Webhook untuk Vercel)
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const { createClient } = require('@supabase/supabase-js');
 
-// Inisialisasi bot dengan polling (untuk development)
-// Untuk production, kita akan menggunakan webhook
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
-
 // Inisialisasi Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+
+// Inisialisasi bot tanpa polling (untuk webhook)
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
 
 // Objek untuk menyimpan state sementara user yang sedang mendaftar
 // Key: telegramUserId, Value: { step: 'name' | 'category' | 'phone', data: {...} }
@@ -80,7 +79,7 @@ const registrationInfoText = `
 *Rekening*: BCA 5385183582 a.n. PT JALUR Pedal Mandiri
 *Ketentuan*: Tidak ada pendaftaran On The Spot (OTS). Peserta wajib melampirkan bukti transfer saat submit formulir.
 
-*LINK PENDAFTARAN*: [Klik Di Sini](https://example.com/link-pendaftaran)  <-- GANTI dengan link asli
+*LINK PENDAFTARAN*: [Klik Di Sini](https://docs.google.com/forms/d/e/1FAIpQLSdrHXSVYWkrBeU5HuEP6RHVbCDoDdfHuS9uYKi43YRAKOI7aA/viewform)
 
 ---
 Untuk simulasi pendaftaran via bot, ketik *2* lagi.
@@ -185,5 +184,21 @@ async function handleRegistrationFlow(msg) {
     }
 }
 
+// --- EXPORT UNTUK VERCEL ---
+// Ini adalah endpoint yang akan menerima update dari Telegram
+module.exports = async (req, res) => {
+    try {
+        // Verifikasi secret token (opsional tapi direkomendasikan untuk keamanan)
+        // Uncomment baris di bawah jika Anda mengatur secret token
+        // if (req.headers['x-telegram-bot-api-secret-token'] !== process.env.TELEGRAM_WEBHOOK_SECRET) {
+        //     return res.status(403).send('Forbidden');
+        // }
 
-console.log('Bot JPM Race 2025 sedang berjalan...');
+        // Process incoming update dari Telegram
+        bot.processUpdate(req.body);
+        res.status(200).send('OK');
+    } catch (error) {
+        console.error('Error processing update:', error);
+        res.status(500).send('Error');
+    }
+};
