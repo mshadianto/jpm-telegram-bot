@@ -1,4 +1,3 @@
-// api/webhook.js
 const TelegramBot = require('node-telegram-bot-api');
 const { createClient } = require('@supabase/supabase-js');
 
