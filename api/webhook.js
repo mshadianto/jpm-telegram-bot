@@ -1,8 +1,3 @@
-// api/webhook.js (Versi Webhook untuk Vercel dengan Supabase State)
-require('dotenv').config();
-const TelegramBot = require('node-telegram-bot-api');
-const { createClient } = require('@supabase/supabase-js');
-
 // Inisialisasi Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
